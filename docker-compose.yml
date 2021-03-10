@@ -1,0 +1,67 @@
+version: "3.2"
+services:
+   nginx:
+       container_name: nginx
+       image: nginx:1.19
+       restart: always
+       ports:
+          - 80:80
+       volumes:
+          - ./config/nginx/site.conf:/etc/nginx/conf.d/site.conf
+          - ./app_php/www:/var/www/html
+       networks:
+          - nginx_network
+       depends_on:
+          - php
+           
+   php:
+       build: app_php/src
+       container_name: php7
+       restart: always
+       volumes:
+          - ./app_php/src:/opt/servicos/serv_php
+          - ./app_php/www:/var/www/html
+       networks:
+          - database_network
+          - nginx_network
+       depends_on:
+          - postgresql
+          
+   postgresql:
+       image: postgres:11
+       container_name: postgres
+       restart: always
+       ports:
+          - "5432:5432"
+       env_file:
+          - config/env/env_database
+       volumes:
+          - database_data:/var/lib/postgresql/data
+       networks:
+          - database_network
+           
+   pgadmin:
+       image: dpage/pgadmin4:4.30
+       container_name: pgadmin4
+       restart: always
+       ports:
+          - "8081:80"
+       env_file:
+          - config/env/env_pgadmin
+       volumes:
+          - pgadmin_data:/var/lib/pgadmin
+       networks:
+          - database_network
+          - nginx_network
+       depends_on:
+          - postgresql
+           
+networks:
+    database_network:
+        driver: bridge
+    nginx_network:
+        driver: bridge
+    
+volumes:
+    database_data:
+    pgadmin_data:
