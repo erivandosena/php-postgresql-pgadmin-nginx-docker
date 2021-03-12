@@ -1,4 +1,4 @@
-version: "3.2"
+version: "3.8"
 services:
    nginx:
        container_name: nginx
@@ -20,6 +20,7 @@ services:
        restart: always
        volumes:
           - ./app_php/src:/opt/servicos/serv_php
+          - ./app_php/src/php.ini-production:/usr/local/etc/php/php.ini
           - ./app_php/www:/var/www/html
        networks:
           - database_network
